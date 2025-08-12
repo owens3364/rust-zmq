@@ -18,8 +18,8 @@ fn main() {
     let mut msg = zmq::Message::new();
     loop {
         let mut items = [
-            receiver.as_poll_item(zmq::POLLIN),
-            subscriber.as_poll_item(zmq::POLLIN),
+            receiver.as_poll_item(zmq::PollEvents::POLLIN),
+            subscriber.as_poll_item(zmq::PollEvents::POLLIN),
         ];
         zmq::poll(&mut items, -1).unwrap();
         if items[0].is_readable() && receiver.recv(&mut msg, 0).is_ok() {

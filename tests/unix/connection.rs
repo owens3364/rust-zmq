@@ -5,7 +5,8 @@
 // the basis for integration with external event loops works.
 
 use log::debug;
-use nix::poll::{self, PollFlags};
+use nix::poll::{self, PollFlags, PollTimeout};
+use std::os::fd::BorrowedFd;
 
 use super::with_connection;
 
@@ -56,12 +57,13 @@ fn poll_client(_ctx: &zmq::Context, socket: &zmq::Socket) {
 /// single socket.
 struct PollState<'a> {
     socket: &'a zmq::Socket,
-    fds: [poll::PollFd; 1],
+    fds: [poll::PollFd<'a>; 1],
 }
 
 impl<'a> PollState<'a> {
     fn new(socket: &'a zmq::Socket) -> Self {
-        let fd = socket.get_fd().unwrap();
+        let raw_fd = socket.get_fd().unwrap();
+        let fd = unsafe { BorrowedFd::borrow_raw(raw_fd) };
         PollState {
             socket,
             fds: [poll::PollFd::new(fd, PollFlags::POLLIN)],
@@ -73,7 +75,7 @@ impl<'a> PollState<'a> {
         while !(self.events().intersects(events)) {
             debug!("polling");
             let fds = &mut self.fds;
-            poll::poll(fds, -1).unwrap();
+            poll::poll(fds, PollTimeout::NONE).unwrap();
             debug!("poll done, events: {:?}", fds[0].revents());
             match fds[0].revents() {
                 Some(events) => {
@@ -97,12 +99,12 @@ fn poll_worker(_ctx: &zmq::Context, socket: &zmq::Socket) {
     loop {
         match reply.take() {
             None => {
-                state.wait(zmq::POLLIN);
+                state.wait(zmq::PollEvents::POLLIN);
                 let msg = socket.recv_msg(zmq::DONTWAIT).unwrap();
                 reply = Some(msg);
             }
             Some(msg) => {
-                state.wait(zmq::POLLOUT);
+                state.wait(zmq::PollEvents::POLLOUT);
                 let done = msg.len() == 0;
                 socket.send(msg, zmq::DONTWAIT).unwrap();
                 if done {

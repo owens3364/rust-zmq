@@ -60,9 +60,9 @@ fn send_message(_ctx: &zmq::Context, socket: &zmq::Socket) {
 
 fn check_poll(_ctx: &zmq::Context, pull_socket: &zmq::Socket) {
     {
-        let mut poll_items = vec![pull_socket.as_poll_item(zmq::POLLIN)];
+        let mut poll_items = vec![pull_socket.as_poll_item(zmq::PollEvents::POLLIN)];
         assert_eq!(zmq::poll(&mut poll_items, 1000).unwrap(), 1);
-        assert_eq!(poll_items[0].get_revents(), zmq::POLLIN);
+        assert_eq!(poll_items[0].get_revents(), zmq::PollEvents::POLLIN);
     }
 
     let msg = pull_socket.recv_msg(zmq::DONTWAIT).unwrap();

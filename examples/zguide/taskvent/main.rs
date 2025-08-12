@@ -26,13 +26,13 @@ fn main() {
     //  The first message is "0" and signals start of batch
     sink.send("0", 0).unwrap();
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     // Send 100 tasks
     let mut total_msec: u32 = 0;
     for _ in 0..100 {
         //  Random workload from 1 to 100 msecs
-        let workload: u32 = rng.gen_range(1..101);
+        let workload: u32 = rng.random_range(1..101);
 
         total_msec += workload;
 

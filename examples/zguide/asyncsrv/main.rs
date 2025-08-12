@@ -5,15 +5,15 @@
 //  context and conceptually acts as a separate process.
 #![crate_name = "asyncsrv"]
 
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use std::time::Duration;
 use std::{str, thread};
 
 fn client_task() {
     let context = zmq::Context::new();
     let client = context.socket(zmq::DEALER).unwrap();
-    let mut rng = thread_rng();
-    let identity = format!("{:04X}-{:04X}", rng.gen::<u16>(), rng.gen::<u16>());
+    let mut rng = rng();
+    let identity = format!("{:04X}-{:04X}", rng.random::<u16>(), rng.random::<u16>());
     client
         .set_identity(identity.as_bytes())
         .expect("failed setting client id");
@@ -23,7 +23,11 @@ fn client_task() {
     let mut request_nbr = 0;
     loop {
         for _ in 0..100 {
-            if client.poll(zmq::POLLIN, 10).expect("client failed polling") > 0 {
+            if client
+                .poll(zmq::PollEvents::POLLIN, 10)
+                .expect("client failed polling")
+                > 0
+            {
                 let msg = client
                     .recv_multipart(0)
                     .expect("client failed receivng response");
@@ -60,7 +64,7 @@ fn server_worker(context: &zmq::Context) {
     worker
         .connect("inproc://backend")
         .expect("worker failed to connect to backend");
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
     loop {
         let identity = worker
@@ -71,9 +75,9 @@ fn server_worker(context: &zmq::Context) {
             .recv_string(0)
             .expect("worker failed receiving message")
             .unwrap();
-        let replies = rng.gen_range(0..4);
+        let replies = rng.random_range(0..4);
         for _ in 0..replies {
-            thread::sleep(Duration::from_millis(rng.gen_range(0..1000) + 1));
+            thread::sleep(Duration::from_millis(rng.random_range(0..1000) + 1));
             worker
                 .send(&identity, zmq::SNDMORE)
                 .expect("worker failed sending identity");

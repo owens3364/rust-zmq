@@ -32,8 +32,8 @@ fn main() {
 
     loop {
         let mut items = [
-            receiver.as_poll_item(zmq::POLLIN),
-            controller.as_poll_item(zmq::POLLIN),
+            receiver.as_poll_item(zmq::PollEvents::POLLIN),
+            controller.as_poll_item(zmq::PollEvents::POLLIN),
         ];
         zmq::poll(&mut items, -1).expect("failed polling");
         if items[0].is_readable() {

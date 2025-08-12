@@ -14,8 +14,8 @@ fn main() {
 
     loop {
         let mut items = [
-            frontend.as_poll_item(zmq::POLLIN),
-            backend.as_poll_item(zmq::POLLIN),
+            frontend.as_poll_item(zmq::PollEvents::POLLIN),
+            backend.as_poll_item(zmq::PollEvents::POLLIN),
         ];
         zmq::poll(&mut items, -1).unwrap();
 

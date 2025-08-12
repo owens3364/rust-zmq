@@ -5,7 +5,7 @@
 //! In which the client requests each chunk individually, using
 //! command pipelining to give us a credit-based flow control.
 
-use rand::distributions::Alphanumeric;
+use rand::distr::Alphanumeric;
 use rand::Rng;
 use std::fs::File;
 use std::io::{Error, Read, Seek, SeekFrom, Write};
@@ -20,7 +20,7 @@ static PIPELINE_HWM: usize = 20;
 
 fn random_string(length: usize) -> String {
     String::from_utf8(
-        rand::thread_rng()
+        rand::rng()
             .sample_iter(&Alphanumeric)
             .take(length)
             .collect(),

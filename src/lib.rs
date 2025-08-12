@@ -845,7 +845,7 @@ impl Socket {
         /// let ctx = zmq::Context::new();
         /// let socket = ctx.socket(zmq::REQ).unwrap();
         /// let events = socket.get_events().unwrap();
-        /// if events.contains(zmq::POLLIN) {
+        /// if events.contains(zmq::PollEvents::POLLIN) {
         ///   println!("socket readable")
         /// }
         /// drop(socket);
@@ -1018,6 +1018,7 @@ impl Socket {
 // is unfortunate.
 bitflags! {
     /// Type representing pending socket events.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub struct PollEvents: i16 {
         /// For `poll()`, specifies to signal when a message/some data
         /// can be read from a socket.
@@ -1031,18 +1032,6 @@ bitflags! {
         const POLLERR = zmq_sys::ZMQ_POLLERR as i16;
     }
 }
-
-/// For `poll()`, specifies to signal when a message/some data can be
-/// read from a socket.
-pub const POLLIN: PollEvents = PollEvents::POLLIN;
-
-/// For `poll()`, specifies to signal when a message/some data can be
-/// written to a socket.
-pub const POLLOUT: PollEvents = PollEvents::POLLOUT;
-
-/// For `poll()`, specifies to signal when an error condition is
-/// present on a socket.  This only applies to non-0MQ sockets.
-pub const POLLERR: PollEvents = PollEvents::POLLERR;
 
 /// Represents a handle that can be `poll()`ed.
 ///
@@ -1083,18 +1072,18 @@ impl<'a> PollItem<'a> {
 
     /// Returns true if the polled socket has messages ready to receive.
     pub fn is_readable(&self) -> bool {
-        (self.revents & POLLIN.bits()) != 0
+        (self.revents & PollEvents::POLLIN.bits()) != 0
     }
 
     /// Returns true if the polled socket can accept messages to be sent
     /// without blocking.
     pub fn is_writable(&self) -> bool {
-        (self.revents & POLLOUT.bits()) != 0
+        (self.revents & PollEvents::POLLOUT.bits()) != 0
     }
 
     /// Returns true if the polled socket encountered an error condition.
     pub fn is_error(&self) -> bool {
-        (self.revents & POLLERR.bits()) != 0
+        (self.revents & PollEvents::POLLERR.bits()) != 0
     }
 
     /// Returns true if the polled socket is the given 0MQ socket.

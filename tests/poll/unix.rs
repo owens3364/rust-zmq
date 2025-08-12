@@ -2,7 +2,7 @@
 // arbitrary FDs.
 
 use nix::unistd;
-use std::os::unix::io::RawFd;
+use std::os::fd::{AsRawFd, OwnedFd};
 use std::thread;
 
 #[test]
@@ -11,12 +11,12 @@ fn test_pipe_poll() {
     let writer_thread = thread::spawn(move || {
         pipe_writer(pipe_write);
     });
-    let pipe_item = zmq::PollItem::from_fd(pipe_read, zmq::POLLIN);
-    assert!(pipe_item.has_fd(pipe_read));
+    let pipe_item = zmq::PollItem::from_fd(pipe_read.as_raw_fd(), zmq::PollEvents::POLLIN);
+    assert!(pipe_item.has_fd(pipe_read.as_raw_fd()));
 
     let mut poll_items = [pipe_item];
     assert_eq!(zmq::poll(&mut poll_items, 1000).unwrap(), 1);
-    assert_eq!(poll_items[0].get_revents(), zmq::POLLIN);
+    assert_eq!(poll_items[0].get_revents(), zmq::PollEvents::POLLIN);
 
     let mut buf = vec![0];
     assert_eq!(unistd::read(pipe_read, &mut buf).unwrap(), 1);
@@ -25,6 +25,6 @@ fn test_pipe_poll() {
     writer_thread.join().unwrap();
 }
 
-fn pipe_writer(fd: RawFd) {
+fn pipe_writer(fd: OwnedFd) {
     unistd::write(fd, b"X").expect("pipe write failed");
 }

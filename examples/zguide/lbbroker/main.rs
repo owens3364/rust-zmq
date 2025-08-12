@@ -111,8 +111,8 @@ fn main() {
     let mut worker_queue = Vec::new();
     loop {
         let mut items = [
-            backend.as_poll_item(zmq::POLLIN),
-            frontend.as_poll_item(zmq::POLLIN),
+            backend.as_poll_item(zmq::PollEvents::POLLIN),
+            frontend.as_poll_item(zmq::PollEvents::POLLIN),
         ];
         let rc = zmq::poll(
             &mut items[0..if worker_queue.is_empty() { 1 } else { 2 }],

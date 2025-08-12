@@ -1,6 +1,6 @@
 [package]
 name = "zmq-sys"
-version = "0.12.0"
+version = "0.13.0"
 authors = [
     "a.rottmann@gmx.at",
     "erick.tryzelaar@gmail.com",
@@ -16,11 +16,11 @@ links = "zmq"
 [features]
 
 [dependencies]
-libc = "0.2.15"
+libc = "0.2.175"
 
 [build-dependencies]
-system-deps = "6"
-zeromq-src = "0.3"
+system-deps = "7.0.5"
+zeromq-src = { git = "https://github.com/owens3364/zeromq-src-rs", rev = "78e209d" }
 
 [package.metadata.system-deps]
-libzmq = "4.1"
+libzmq = "4.3.5"

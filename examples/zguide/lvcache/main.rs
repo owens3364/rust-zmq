@@ -21,8 +21,8 @@ fn main() {
 
     loop {
         let mut items = [
-            frontend.as_poll_item(zmq::POLLIN),
-            backend.as_poll_item(zmq::POLLIN),
+            frontend.as_poll_item(zmq::PollEvents::POLLIN),
+            backend.as_poll_item(zmq::PollEvents::POLLIN),
         ];
         if zmq::poll(&mut items, 1000).is_err() {
             break; //  Interrupted

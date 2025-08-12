@@ -91,13 +91,13 @@ test!(test_polling, {
     let (sender, receiver) = create_socketpair();
 
     // no message yet
-    assert_eq!(receiver.poll(POLLIN, 1000).unwrap(), 0);
+    assert_eq!(receiver.poll(PollEvents::POLLIN, 1000).unwrap(), 0);
 
     // send message
     sender.send("Hello!", 0).unwrap();
-    let mut poll_items = vec![receiver.as_poll_item(POLLIN)];
+    let mut poll_items = vec![receiver.as_poll_item(PollEvents::POLLIN)];
     assert_eq!(poll(&mut poll_items, 1000).unwrap(), 1);
-    assert_eq!(poll_items[0].get_revents(), POLLIN);
+    assert_eq!(poll_items[0].get_revents(), PollEvents::POLLIN);
     assert!(poll_items[0].is_readable());
     assert!(!poll_items[0].is_writable());
     assert!(!poll_items[0].is_error());
