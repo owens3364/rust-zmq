@@ -20,7 +20,7 @@ libc = "0.2.175"
 
 [build-dependencies]
 system-deps = "7.0.5"
-zeromq-src = { git = "https://github.com/owens3364/zeromq-src-rs", rev = "4f5ed36" }
+zeromq-src = { git = "https://github.com/owens3364/zeromq-src-rs", rev = "d36864d" }
 
 [package.metadata.system-deps]
 libzmq = "4.3.5"
